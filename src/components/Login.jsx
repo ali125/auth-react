@@ -5,7 +5,7 @@ import axios from '../api/axios';
 import useAuth from '../hooks/useAuth';
 
 const Login = () => {
-    const { setAuth } = useAuth();
+    const { setAuth, persist, setPersist } = useAuth();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -67,6 +67,14 @@ const Login = () => {
         }
     }
 
+    const togglePersist = () => {
+        setPersist(prev => !prev);
+    }
+
+    useEffect(() => {
+        localStorage.setItem('persist', persist);
+    }, [persist]);
+
     return (
         <section>
             <p
@@ -106,6 +114,16 @@ const Login = () => {
                 <button className='w-full my-3 text-center bg-green-600 px-5 py-3 rounded-md shadow disabled:bg-slate-400' disabled={!user || !pwd}>
                     Sign In
                 </button>  
+
+                <div>
+                    <input
+                        type="checkbox"
+                        id="persist"
+                        onChange={togglePersist}
+                        checked={persist}
+                    />
+                    <label className='ml-1' htmlFor="persist">Trust This Device</label>
+                </div>
             </form>
             <p className='text-center w-full text-white'>
                 Need an Account? <br />
