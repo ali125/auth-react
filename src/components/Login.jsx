@@ -3,9 +3,11 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from '../api/axios';
 import useAuth from '../hooks/useAuth';
+import useInput from '../hooks/useInput';
+import useToggle from '../hooks/useToggle';
 
 const Login = () => {
-    const { setAuth, persist, setPersist } = useAuth();
+    const { setAuth } = useAuth();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -14,10 +16,11 @@ const Login = () => {
     const userRef = useRef();
     const errRef = useRef();
 
-    const [user, setUser] = useState('');
+    const [user, resetUser, userAttributes] = useInput('user', ''); // useState('');
     const [pwd, setPwd] = useState('');
 
     const [errMsg, setErrMsg] = useState("");
+    const [check, toggleCheck] = useToggle('persist', false);
 
     useEffect(() => {
         userRef.current.focus();
@@ -49,7 +52,8 @@ const Login = () => {
             const accessToken = response?.data?.accessToken;
             const roles = response?.data?.roles;
             setAuth({ user, pwd, roles, accessToken });
-            setUser('');
+            // setUser('');
+            resetUser();
             setPwd('');
             navigate(from, { replace: true });
         } catch (err) {
@@ -66,14 +70,6 @@ const Login = () => {
             console.log(err);
         }
     }
-
-    const togglePersist = () => {
-        setPersist(prev => !prev);
-    }
-
-    useEffect(() => {
-        localStorage.setItem('persist', persist);
-    }, [persist]);
 
     return (
         <section>
@@ -96,9 +92,8 @@ const Login = () => {
                     ref={userRef}
                     autoComplete="off"
                     className='text-black py-2 px-3 rounded-md w-full focus:outline-sky-700 mb-3'
-                    onChange={(e) => setUser(e.target.value)}
                     required
-                    value={user}
+                    {...userAttributes}
                 />
 
                 <label className='text-white my-1 flex items-center' htmlFor='password'>Password:</label>
@@ -119,8 +114,8 @@ const Login = () => {
                     <input
                         type="checkbox"
                         id="persist"
-                        onChange={togglePersist}
-                        checked={persist}
+                        onChange={toggleCheck}
+                        checked={check}
                     />
                     <label className='ml-1' htmlFor="persist">Trust This Device</label>
                 </div>
